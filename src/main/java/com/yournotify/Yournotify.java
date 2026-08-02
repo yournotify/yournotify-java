@@ -43,11 +43,11 @@ public final class Yournotify {
               catch(IOException error) { if(!retryable || attempt>=maxRetries) throw error; Thread.sleep(250L*(1L<<attempt)); }
         }
     }
-    public String identify(Map<String,?> data) throws Exception { return request("POST","automations/identify",data); }
+    public String identify(Map<String,?> data) throws Exception { return request("POST","sdk/identify",data); }
     private static Map<String,Object> normalizeEvent(Map<String,?> input){Map<String,Object> value=new LinkedHashMap<>(input);value.putIfAbsent("event_id",Objects.toString(value.getOrDefault("idempotency_key",UUID.randomUUID().toString())));value.putIfAbsent("occurred_at",Instant.now().toString());return value;}
-    public String track(Map<String,?> data) throws Exception { return request("POST","automations/events",normalizeEvent(data)); }
-    public String trackBatch(List<Map<String,?>> events) throws Exception { return request("POST","automations/events/batch",Map.of("events",events.stream().map(Yournotify::normalizeEvent).toList())); }
-    public String alias(Map<String,?> data) throws Exception { return request("POST","automations/alias",data); }
+    public String track(Map<String,?> data) throws Exception { return request("POST","sdk/events",normalizeEvent(data)); }
+    public String trackBatch(List<Map<String,?>> events) throws Exception { return request("POST","sdk/events/batch",Map.of("events",events.stream().map(Yournotify::normalizeEvent).toList())); }
+    public String alias(Map<String,?> data) throws Exception { return request("POST","sdk/alias",data); }
     public Channel email(){return new Channel("email");} public Channel sms(){return new Channel("sms");} public Channel whatsapp(){return new Channel("whatsapp");} public Channel voice(){return new Channel("voice");} public Channel push(){return new Channel("push");} public Channel inapp(){return new Channel("inapp");}
     public Contact contact(){return new Contact();} public Lists lists(){return new Lists();} public Rewards rewards(){return new Rewards();} public Loyalty loyalty(){return new Loyalty();} public Referrals referrals(){return new Referrals();}
     public final class Channel { private final String name; Channel(String name){this.name=name;} public String send(Map<String,Object> payload)throws Exception{Map<String,Object> data=new LinkedHashMap<>(payload);if(name.equals("voice"))return request("POST","campaigns/voice",data);data.put("channel",name);return request("POST","campaigns",data);} }
